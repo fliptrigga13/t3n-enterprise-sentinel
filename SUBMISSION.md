@@ -143,7 +143,7 @@ As requested in the challenge brief, we thoroughly tested the new T3N documentat
 ---
 
 ## 6. Repository & Resource Links
-- **Source Code**: Included in this workspace under `/scratch/t3n-enterprise-sentinel`
+- **Public GitHub Repository**: [https://github.com/fliptrigga13/t3n-enterprise-sentinel](https://github.com/fliptrigga13/t3n-enterprise-sentinel)
 - **Documentation**: `README.md`
 - **Submission Document**: `SUBMISSION.md`
 - **Contact**: Available via Superteam Earn or Telegram (`@wardumb`)
