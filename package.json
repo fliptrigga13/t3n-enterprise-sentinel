@@ -1,0 +1,36 @@
+{
+  "name": "t3n-enterprise-sentinel",
+  "version": "1.0.0",
+  "description": "Enterprise Autonomous Treasury & Compliance Sentinel powered by Terminal 3 Network (T3N) and Solana",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "tsx src/cli.ts start",
+    "demo": "tsx src/cli.ts demo",
+    "simulate-breach": "tsx src/cli.ts simulate-breach",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "t3n",
+    "terminal3",
+    "solana",
+    "ai-agent",
+    "enterprise",
+    "compliance",
+    "treasury",
+    "superteam-earn"
+  ],
+  "author": "AgenC Quant Swarm",
+  "license": "MIT",
+  "dependencies": {
+    "@solana/web3.js": "^1.98.0",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
