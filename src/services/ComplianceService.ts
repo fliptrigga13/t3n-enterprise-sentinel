@@ -7,6 +7,8 @@ import type {
 } from '../types/index.js';
 import type { T3NClient } from '../core/T3NClient.js';
 
+// DEMO sanctions list (2 hardcoded entries). Production path: the OFAC SDN
+// feed or a commercial screening API (Chainalysis / TRM Labs).
 const KNOWN_SANCTIONED_ADDRESSES = new Set([
   '4nK2L8wRt9mK2p7v4yB8n3Xz19Pqm29L4V7x1BqM3K8d', // Mock Tornado / sanctioned router
   '9qA1B2c3D4e5F6g7H8i9J0kLmNoPqRsTuVwXyZaBcDeF',
