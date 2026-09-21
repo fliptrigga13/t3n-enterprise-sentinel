@@ -8,6 +8,8 @@
     "build": "tsc",
     "start": "tsx src/cli.ts start",
     "demo": "tsx src/cli.ts demo",
+    "demo:mainnet": "tsx src/cli.ts mainnet",
+    "watch": "tsx src/cli.ts watch",
     "simulate-breach": "tsx src/cli.ts simulate-breach",
     "test": "vitest run"
   },
@@ -19,13 +21,12 @@
     "enterprise",
     "compliance",
     "treasury",
-    "superteam-earn"
+    "colosseum"
   ],
-  "author": "AgenC Quant Swarm",
+  "author": "fliptrigga13",
   "license": "MIT",
   "dependencies": {
-    "@solana/web3.js": "^1.98.0",
-    "dotenv": "^16.4.7"
+    "@solana/web3.js": "^1.98.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
