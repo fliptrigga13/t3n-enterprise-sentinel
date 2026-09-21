@@ -7,6 +7,14 @@ export interface T3NClientConfig {
 }
 
 export class T3NClient {
+  /**
+   * T3N-COMPATIBLE DID INTERFACE — LOCAL SIMULATED ADAPTER.
+   *
+   * resolveDID() is served by a seeded in-memory registry below. It makes
+   * ZERO network calls to Terminal 3 (the `endpoint` config is retained only
+   * so a network-backed resolver can be dropped in behind this same interface
+   * later). Do not describe this as a live T3N integration.
+   */
   private config: T3NClientConfig;
   private didRegistry: Map<string, T3NDecentralizedIdentity> = new Map();
 
@@ -69,7 +77,8 @@ export class T3NClient {
   }
 
   public async resolveDID(did: string): Promise<T3NDecentralizedIdentity | null> {
-    // In production this queries Terminal 3 DID resolver endpoint
+    // Simulated adapter: reads from the local seeded registry. A production
+    // adapter would query the Terminal 3 DID resolver endpoint here instead.
     const identity = this.didRegistry.get(did);
     if (!identity) {
       return null;
