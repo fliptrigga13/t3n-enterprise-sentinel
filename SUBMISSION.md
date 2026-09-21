@@ -1,10 +1,11 @@
-# Superteam Earn Submission: T3N Trusted Enterprise Agent Build Challenge
+# Colosseum Crypto World's Fair — Entry Submission: T3N Enterprise Sentinel
 
-**Bounty Title**: Try out new docs to build a trusted agent with T3N that we can distribute / host  
-**Sponsor**: Terminal 3 Network ([@terminal3io](https://terminal3.io))  
-**Listing URL**: [https://superteam.fun/earn/listing/t3n-agent-build-challenge](https://superteam.fun/earn/listing/t3n-agent-build-challenge)  
-**Deliverable Name**: **T3N Enterprise Sentinel — Autonomous Solana Treasury & Compliance Agent**  
-**Submitter Wallet (Solana Mainnet)**: `CUbv4Hn4Y71ASzYn8j34YvFit55RbUPi6tLobVjmfc7i`  
+**Project**: **T3N Enterprise Sentinel** — Autonomous Solana Treasury & Compliance Agent
+**Author**: fliptrigga13 — [github.com/fliptrigga13/t3n-enterprise-sentinel](https://github.com/fliptrigga13/t3n-enterprise-sentinel)
+**Submitter Wallet (Solana Mainnet)**: `CUbv4Hn4Y71ASzYn8j34YvFit55RbUPi6tLobVjmfc7i`
+**Contact**: Telegram (`@wardumb`)
+
+**Provenance**: Originally built for the Terminal 3 Network (T3N) Trusted Agent Build Challenge (Superteam Earn bounty — sponsor: Terminal 3 Network, [@terminal3io](https://terminal3.io)). Extended during the Colosseum hackathon window (Sep 14 – Oct 12, 2026) with a **read-only Solana mainnet screening mode** and a **polling watch mode**. The T3N challenge history is honest provenance, not the headline — this document is the Colosseum entry.
 
 ---
 
@@ -17,7 +18,12 @@ Enterprises and DAOs managing multi-million dollar digital asset treasuries on S
 - Severe regulatory reporting overhead when reconciling thousands of high-speed Solana transactions with corporate ERP systems (NetSuite, SAP, QuickBooks).
 
 ### The Solution: T3N Enterprise Sentinel
-**T3N Enterprise Sentinel** is an autonomous compliance and risk monitor that runs 24/7 as an automated gateway for Solana enterprise treasuries. It cryptographically binds every transaction to a **Terminal 3 Network (T3N) Decentralized Identity (DID)**, checks executive credentials, validates against real-time AML/sanctions blacklists, enforces daily spending velocity caps, and generates cryptographic audit proofs for enterprise accounting.
+**T3N Enterprise Sentinel** is an autonomous compliance and risk monitor for Solana enterprise treasuries. It cryptographically binds every transaction to a **T3N-compatible Decentralized Identity (DID)**, checks executive credentials, validates against sanctions lists, enforces daily spending velocity caps, and generates cryptographic audit proofs for enterprise accounting. In **polling watch mode** it screens new vault signatures every N seconds and prints alerts; in **read-only mainnet mode** it screens real on-chain transfers through the same 5-layer engine.
+
+### Honest boundaries
+- Sentinel **never holds private keys, never signs, and never broadcasts**. "APPROVE" means *queued for operator review*; "FREEZE_AND_ALERT" means *a policy-freeze record in the local alert queue* — not on-chain enforcement.
+- The DID resolver is a **T3N-compatible local simulated adapter** (seeded in-memory registry, zero T3N network calls). A network-backed resolver is a planned drop-in behind the same interface.
+- Sanctions screening uses a **2-entry demo list**; production path is the OFAC SDN feed or a commercial API (Chainalysis / TRM Labs).
 
 ---
 
@@ -28,45 +34,47 @@ sequenceDiagram
     autonumber
     participant Officer as Corporate Signer (DID)
     participant Sentinel as T3N Enterprise Sentinel
-    participant T3N as Terminal 3 Network (DID Mesh)
-    participant Solana as Solana Mainnet Vault
+    participant DID as T3N-Compatible DID Adapter (local, simulated)
+    participant Solana as Solana Mainnet (read-only RPC)
     participant ERP as Enterprise ERP Ledger
 
     Officer->>Sentinel: Dispatch Outbound Transfer Request
-    Sentinel->>T3N: Authenticate Initiator DID & Verifiable Credentials
-    T3N-->>Sentinel: Attestation Confirmed (Valid EnterpriseSignerCredential)
-    Sentinel->>Sentinel: Multi-Layer Screening (Sanctions, Limits, Whitelist)
+    Sentinel->>DID: Authenticate Initiator DID & Verifiable Credentials
+    DID-->>Sentinel: Attestation Checked (local registry — no network calls)
+    Sentinel->>Sentinel: Multi-Layer Screening (Sanctions, DID, Whitelist, Limits, Velocity)
     alt Screening Passes (< 40 Risk)
-        Sentinel->>Solana: Approve & Broadcast to Validator Cluster
-        Solana-->>Sentinel: Transaction Finalized (Tx Signature)
+        Sentinel->>Sentinel: APPROVE — queued for operator review
         Sentinel->>ERP: Reconcile Invoice with Cryptographic Proof Hash
     else Screening Fails (>= 70 Risk or Sanctioned)
-        Sentinel->>Sentinel: Trigger Instant Automated Policy Freeze
-        Sentinel->>Officer: Dispatch Urgent Incident Alert & Halt Pipeline
+        Sentinel->>Sentinel: Record Policy Freeze in Local Alert Queue
+        Sentinel->>Officer: Dispatch Incident Alert for Operator Action
     end
+    Note over Sentinel,Solana: demo:mainnet pulls real signatures/transactions<br/>via public RPC (read-only) into the same screening engine.
 ```
 
 ---
 
 ## 3. Verified Execution & Test Proof
 
-### Automated Test Suite: 100% Pass Rate
+### Automated Test Suite: 100% Pass Rate (offline)
 ```text
 $ npm test
 
- RUN  v2.1.9 C:/t3n-enterprise-sentinel
+ RUN  v2.1.9 /t3n-enterprise-sentinel
 
  ✓ tests/sentinel.test.ts (6 tests)
-   ✓ authenticates legitimate officer DID with valid enterprise credentials (3ms)
-   ✓ rejects unregistered or revoked DIDs (1ms)
-   ✓ approves compliant enterprise transaction and reconciles with ERP invoice (2ms)
-   ✓ freezes transaction that exceeds daily treasury limit (1ms)
-   ✓ blocks transfer to known sanctioned / illicit address (1ms)
-   ✓ computes accurate audit statistics across processed transactions (1ms)
+   ✓ authenticates legitimate officer DID with valid enterprise credentials
+   ✓ rejects unregistered or revoked DIDs
+   ✓ approves compliant enterprise transaction and reconciles with ERP invoice
+   ✓ freezes transaction that exceeds daily treasury limit
+   ✓ blocks transfer to known sanctioned / illicit address
+   ✓ computes accurate audit statistics across processed transactions
+ ✓ tests/mainnet-mapper.test.ts (2 tests)
+   ✓ extracts only native-SOL system transfers and dedupes repeats
+   ✓ maps lamports to SOL and preserves on-chain metadata
 
- Test Files  1 passed (1)
-      Tests  6 passed (6)
-   Duration  444ms
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
 ```
 
 ### Live CLI Demonstration Run
@@ -75,17 +83,17 @@ $ npm run demo
 
 ================================================================================
    🛡️  T3N ENTERPRISE SENTINEL: AUTONOMOUS SOLANA TREASURY & COMPLIANCE AGENT
-   Powered by Terminal 3 Network (T3N) Decentralized Identity & Attestation
+   T3N-compatible DID interface — local simulated adapter (no live T3N network calls)
 ================================================================================
 
-[STATUS] Initializing T3N DID Resolution Mesh... Connected.
+[STATUS] T3N-compatible DID resolver: local simulated adapter loaded.
 [STATUS] Monitoring Vault: CORP_TREASURY_MAIN_CUbv4Hn4Y71ASzYn8j34YvFit55RbUPi6tLobVjmf
 [STATUS] Daily Cap: 50.00 SOL | Current Vault Balance: 2500.00 SOL
 
 --- [SCENARIO 1: LEGITIMATE ENTERPRISE OPEX TRANSFER] ---
 Tx 1 Result: APPROVE (Risk Score: 0/100)
   DID Verified: true (Solana Global Enterprises Inc.)
-  ERP Reconciliation: MATCHED [Proof: c662c54d6110a84b...]
+  ERP Reconciliation: MATCHED [Proof: 05a0e60b9d8dd373...]
 
 --- [SCENARIO 2: UNAUTHORIZED ROGUE TRANSFER ATTEMPT] ---
 Tx 2 Result: ⛔ FREEZE_AND_ALERT (Risk Score: 100/100)
@@ -103,7 +111,7 @@ Tx 3 Result: ⛔ FREEZE_AND_ALERT (Risk Score: 100/100)
   Action Taken: Alert Logged and Incident Dispatched.
 
 ================================================================================
-                         AUDIT & COMPLIANCE SUMMARY                             
+                         AUDIT & COMPLIANCE SUMMARY
 ================================================================================
   Total Volume Inspected:  137.5 SOL
   Total Transactions:      3
@@ -113,37 +121,56 @@ Tx 3 Result: ⛔ FREEZE_AND_ALERT (Risk Score: 100/100)
   Active Security Alerts:  2
 ================================================================================
 ```
+*(The ERP proof-hash prefix is a per-run SHA-256 over the transaction including its timestamp, so it differs run to run; all other values above are deterministic.)*
+
+### Read-Only Mainnet Screening
+`npm run demo:mainnet -- --address <any-solana-address>` pulls recent signatures/transactions for any address via public RPC and runs the same 5-layer compliance screen over the real transfers. No keypairs, no signing, no broadcasting. Verified end-to-end run (exit 0) below — in this sandbox the egress proxy intermittently reset RPC connections, so the run exercised the designed graceful-fallback path: a clear warning plus a labeled synthetic feed.
+```text
+$ npm run demo:mainnet
+
+   🛡️  T3N ENTERPRISE SENTINEL — READ-ONLY MAINNET SCREENING MODE
+   Public RPC only. No keypairs, no signing, no broadcasting.
+
+[mainnet] target address: 11111111111111111111111111111111
+[mainnet] rpc endpoint:  https://api.mainnet-beta.solana.com
+
+⚠️  RPC unreachable (fetch failed).
+   Running in SIMULATED mode with a synthetic feed — no live chain data.
+
+  signature…        | from → to              | amount      | risk      | action           | flags
+  SIMULATED_FEED_l… | SIM_TREA… → SIM_VEND… | 2.500000 SOL | risk 60/100 HIGH | FLAG_FOR_REVIEW | flags: MISSING_T3N_DID, UNWHITELISTED_DESTINATION
+  SIMULATED_FEED_s… | SIM_TREA… → SIM_VEND… | 0.500000 SOL | risk 100/100 CRITICAL | FREEZE_AND_ALERT | flags: SANCTIONED_RECIPIENT, MISSING_T3N_DID, UNWHITELISTED_DESTINATION
+
+  ── screening summary ──
+  transfers screened: 2 | approved: 0 | frozen: 1 | flagged for review: 1
+
+[mainnet] done. Sentinel made zero network calls beyond the public RPC reads above.
+```
+Live-path evidence (partial): direct `getSignaturesForAddress` / `getSlot` calls against `https://api.mainnet-beta.solana.com` from the same tree returned real mainnet data (slot 448,918,296; recent signatures e.g. `A8sux7ypMqMWQaXr…`). The end-to-end live screening run was not completable from the hardening sandbox because of the proxy flakiness described above — on a normal network the live path executes the same code path as the verified direct calls.
+
+### Polling Watch Mode
+`npm run watch -- --address <addr> --interval 30` establishes a baseline signature, then polls `getSignaturesForAddress` with `until` every N seconds, screens any new signatures' SOL transfers through the compliance engine, prints approve/flag/freeze alerts per transfer, and prints a summary on Ctrl+C. If the RPC is unreachable at startup it exits with a clear message rather than fabricating data (watch mode never falls back to simulated data — that would manufacture fake alerts).
+
+*Implementation is complete and code-reviewed; a live multi-cycle run could not be demonstrated from the hardening sandbox because the egress proxy intermittently resets RPC connections (see mainnet note above). "24/7" uptime language has been deliberately removed from all docs pending a live soak test.*
 
 ---
 
-## 4. Terminal 3 Network (T3N) ADK Developer Experience & Feedback Report
+## 4. Integration Status & Known Limitations
 
-As requested in the challenge brief, we thoroughly tested the new T3N documentation and integration workflow (`docs.terminal3.io/developers/adk`). Here are high-priority insights, feedback, and friction points encountered to help the T3N team improve the developer experience:
+This section replaces the earlier T3N ADK feedback report — the code never integrated the live T3N network, so no integration-workflow claims are made here.
 
-### 1. Strengths
-- **Decentralized Identity on Solana**: The concept of using DIDs for role-gated autonomous agents is a game changer for institutional adoption. Enterprises refuse to give bots unrestricted private keys; T3N DID attestation provides the missing security boundary.
-- **Clear Quickstart Flow**: The step-by-step SSO signup and DID credential issuance workflow is intuitive.
-
-### 2. Suggested Improvements & Bug Reports
-- **Timestamp Standardization in Verifiable Credentials**: In the quickstart examples, credential expiration dates are shown as ISO strings in some endpoints and UNIX millisecond timestamps in others. Standardizing strictly on ISO-8601 strings across all ADK types will avoid serialization bugs.
-- **Offline / Local Verification Fallback**: When an enterprise agent is running in high-frequency trading or low-latency treasury environments, making an HTTP round-trip to the T3N DID resolver for every micro-transfer adds 80–150ms latency. We recommend adding a local public key cache with cryptographic signature verification (Ed25519) directly inside the ADK.
-- **Revocation Webhook / Event Stream**: Enterprises need to revoke compromised employee DIDs instantly. A WebSocket or webhook event stream (`credential.revoked`) in the T3N ADK would allow Sentinel agents to freeze malicious signers within milliseconds without polling.
+- **T3N / DID**: The `T3NClient` exposes a T3N-compatible DID interface (`resolveDID`, `verifyCredential`, `authenticateSigner`), but resolution is served by a **seeded in-memory registry** — zero HTTP calls, zero SDK usage. The `endpoint: https://api.terminal3.io/v1` config value is retained only as the seam where a network-backed adapter drops in. Any "live T3N integration" language has been removed from the codebase and docs.
+- **Solana**: `demo:mainnet` and `--watch` are **read-only** (public RPC `getSignaturesForAddress` / `getParsedTransactions`). Nothing is signed or broadcast; there is deliberately no keypair handling anywhere in the codebase.
+- **Sanctions**: 2-entry hardcoded demo set, labeled as such in code. Production path: OFAC SDN feed or Chainalysis / TRM Labs API.
+- **Freezes & alerts**: local in-memory records for operator review, not on-chain enforcement and not dispatched anywhere.
+- **Autonomy**: "autonomous" here means the engine screens and decides without human input per transaction; continuous operation is via `--watch` polling, not a 24/7 SLA — no such claim is made.
 
 ---
 
-## 5. Handover & Post-Challenge Maintenance Plan
+## 5. Provenance & Maintenance Notes
 
-- **Preferred Handover Option**: **We would love to hand this over to Terminal 3 Network to maintain and host as an official open-source Enterprise Template** on the T3N GitHub and Agent Directory.
-- **Ease of Maintenance**:
-  - Zero heavy external runtime dependencies (clean TypeScript + Node.js).
-  - Stateless architecture: Can be deployed in 2 minutes on Docker, AWS Lambda, or a lightweight VPS.
-  - Fully tested with automated Vitest suites.
-- **Ongoing Support**: We are happy to advise and assist the T3N team with merging and maintaining this module as an official enterprise showcase.
-
----
-
-## 6. Repository & Resource Links
-- **Public GitHub Repository**: [https://github.com/fliptrigga13/t3n-enterprise-sentinel](https://github.com/fliptrigga13/t3n-enterprise-sentinel)
-- **Documentation**: `README.md`
-- **Submission Document**: `SUBMISSION.md`
-- **Contact**: Available via Superteam Earn or Telegram (`@wardumb`)
+- Built by **fliptrigga13** (sole author, 39 commits) — originally for the T3N Trusted Agent Build Challenge (Superteam Earn), extended during the Colosseum Crypto World's Fair window with mainnet screening + watch mode.
+- **Ease of maintenance**: minimal runtime dependencies (TypeScript + Node.js + `@solana/web3.js`); deterministic offline test suite; no secrets or env config required for any documented command.
+- **Repository**: [https://github.com/fliptrigga13/t3n-enterprise-sentinel](https://github.com/fliptrigga13/t3n-enterprise-sentinel)
+- **Docs**: `README.md` (this file's companion)
+- **Contact**: Telegram (`@wardumb`)
