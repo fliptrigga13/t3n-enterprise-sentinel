@@ -2,12 +2,13 @@ import { T3NClient } from './core/T3NClient.js';
 import { ComplianceService } from './services/ComplianceService.js';
 import { ReconciliationEngine } from './services/ReconciliationEngine.js';
 import { TreasuryMonitor } from './services/TreasuryMonitor.js';
+import { runMainnetDemo, runWatchMode, DEFAULT_DEMO_ADDRESS, DEFAULT_RPC_ENDPOINT } from './mainnet.js';
 import type { TreasuryTransaction } from './types/index.js';
 
 async function runDemo() {
   console.log('\n================================================================================');
   console.log('   🛡️  T3N ENTERPRISE SENTINEL: AUTONOMOUS SOLANA TREASURY & COMPLIANCE AGENT');
-  console.log('   Powered by Terminal 3 Network (T3N) Decentralized Identity & Attestation');
+  console.log('   T3N-compatible DID interface — local simulated adapter (no live T3N network calls)');
   console.log('================================================================================\n');
 
   const t3nClient = new T3NClient();
@@ -17,7 +18,7 @@ async function runDemo() {
 
   const treasuryVault = 'CORP_TREASURY_MAIN_CUbv4Hn4Y71ASzYn8j34YvFit55RbUPi6tLobVjmf';
 
-  console.log(`[STATUS] Initializing T3N DID Resolution Mesh... Connected.`);
+  console.log(`[STATUS] T3N-compatible DID resolver: local simulated adapter loaded.`);
   console.log(`[STATUS] Monitoring Vault: ${treasuryVault}`);
   console.log(`[STATUS] Daily Cap: 50.00 SOL | Current Vault Balance: 2500.00 SOL\n`);
 
@@ -93,6 +94,11 @@ async function runDemo() {
   console.log('================================================================================\n');
 }
 
+function getArg(name: string): string | undefined {
+  const i = process.argv.indexOf(name);
+  return i >= 0 && i + 1 < process.argv.length ? process.argv[i + 1] : undefined;
+}
+
 const command = process.argv[2] || 'demo';
 
 if (command === 'demo' || command === 'start' || command === 'simulate-breach') {
@@ -100,6 +106,30 @@ if (command === 'demo' || command === 'start' || command === 'simulate-breach') 
     console.error('Fatal Sentinel Error:', err);
     process.exit(1);
   });
+} else if (command === 'mainnet') {
+  // Read-only mainnet screening: screens REAL recent transfers for an address.
+  // Falls back to a clearly-labeled simulated feed when the RPC is unreachable.
+  const address = getArg('--address') ?? DEFAULT_DEMO_ADDRESS;
+  const rawLimit = Number(getArg('--limit') ?? '8');
+  const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(Math.floor(rawLimit), 25) : 8;
+  const rpcEndpoint = getArg('--rpc') ?? DEFAULT_RPC_ENDPOINT;
+  runMainnetDemo({ address, limit, rpcEndpoint, timeoutMs: 20000 }).catch((err) => {
+    console.error('Fatal Sentinel Error:', err);
+    process.exit(1);
+  });
+} else if (command === 'watch') {
+  // Polling watch mode: screens new signatures for a watched address every N seconds.
+  const address = getArg('--address') ?? DEFAULT_DEMO_ADDRESS;
+  const rawInterval = Number(getArg('--interval') ?? '30');
+  const intervalSec = Number.isFinite(rawInterval) && rawInterval > 0 ? Math.max(5, Math.floor(rawInterval)) : 30;
+  const rpcEndpoint = getArg('--rpc') ?? DEFAULT_RPC_ENDPOINT;
+  const maxCycles = Number(getArg('--cycles') ?? '0') || 0;
+  runWatchMode({ address, intervalSec, rpcEndpoint, timeoutMs: 20000, maxCycles }).catch((err) => {
+    console.error('Fatal Sentinel Error:', err);
+    process.exit(1);
+  });
 } else {
-  console.log(`Usage: tsx src/cli.ts [demo|start|simulate-breach]`);
+  console.log(`Usage: tsx src/cli.ts [demo|start|simulate-breach|mainnet|watch]`);
+  console.log(`  mainnet  --address <addr> --limit <n> --rpc <url>        Read-only mainnet screening (simulated fallback when offline)`);
+  console.log(`  watch    --address <addr> --interval <secs> --cycles <n> Polling watch mode, --cycles 0 = forever (requires RPC)`);
 }
