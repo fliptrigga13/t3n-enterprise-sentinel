@@ -1,7 +1,7 @@
 {
   "name": "t3n-enterprise-sentinel",
   "version": "1.0.0",
-  "description": "Enterprise Autonomous Treasury & Compliance Sentinel powered by Terminal 3 Network (T3N) and Solana",
+  "description": "Enterprise Autonomous Treasury & Compliance Sentinel with a T3N-compatible DID interface on Solana",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
