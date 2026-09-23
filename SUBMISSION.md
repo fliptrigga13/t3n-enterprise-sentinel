@@ -124,7 +124,7 @@ Tx 3 Result: ⛔ FREEZE_AND_ALERT (Risk Score: 100/100)
 *(The ERP proof-hash prefix is a per-run SHA-256 over the transaction including its timestamp, so it differs run to run; all other values above are deterministic.)*
 
 ### Read-Only Mainnet Screening
-`npm run demo:mainnet -- --address <any-solana-address>` pulls recent signatures/transactions for any address via public RPC and runs the same 5-layer compliance screen over the real transfers. No keypairs, no signing, no broadcasting. Verified end-to-end run (exit 0) below — in this sandbox the egress proxy intermittently reset RPC connections, so the run exercised the designed graceful-fallback path: a clear warning plus a labeled synthetic feed.
+`npm run demo:mainnet -- --address <any-solana-address>` pulls recent signatures/transactions for any address via public RPC and runs the same 5-layer compliance screen over the real transfers. No keypairs, no signing, no broadcasting. Verified end-to-end live run (exit 0) below, executed 2026-09-22:
 ```text
 $ npm run demo:mainnet
 
@@ -133,20 +133,20 @@ $ npm run demo:mainnet
 
 [mainnet] target address: 11111111111111111111111111111111
 [mainnet] rpc endpoint:  https://api.mainnet-beta.solana.com
-
-⚠️  RPC unreachable (fetch failed).
-   Running in SIMULATED mode with a synthetic feed — no live chain data.
+[mainnet] fetched 4 SOL transfer(s) from recent on-chain activity — LIVE CHAIN DATA.
 
   signature…        | from → to              | amount      | risk      | action           | flags
-  SIMULATED_FEED_l… | SIM_TREA… → SIM_VEND… | 2.500000 SOL | risk 60/100 HIGH | FLAG_FOR_REVIEW | flags: MISSING_T3N_DID, UNWHITELISTED_DESTINATION
-  SIMULATED_FEED_s… | SIM_TREA… → SIM_VEND… | 0.500000 SOL | risk 100/100 CRITICAL | FREEZE_AND_ALERT | flags: SANCTIONED_RECIPIENT, MISSING_T3N_DID, UNWHITELISTED_DESTINATION
+  Nohgb2oFnLANeMrE… | WScn82fA… → Fpqn9Cvd… | 0.000266 SOL | risk 60/100 HIGH | FLAG_FOR_REVIEW | flags: MISSING_T3N_DID, UNWHITELISTED_DESTINATION
+  5ZteqyFj8VPyHFNJ… | m3ZqcGei… → CM4fanHK… | 0.000472 SOL | risk 60/100 HIGH | FLAG_FOR_REVIEW | flags: MISSING_T3N_DID, UNWHITELISTED_DESTINATION
+  22qB84NNHZ5rpQ4B… | 5GcnDztZ… → 9fvZiYUv… | 0.000232 SOL | risk 60/100 HIGH | FLAG_FOR_REVIEW | flags: MISSING_T3N_DID, UNWHITELISTED_DESTINATION
+  bDwriePFkLdb7LKC… | 7tBrajXq… → Gy5R81xQ… | 11.988418 SOL | risk 100/100 CRITICAL | FREEZE_AND_ALERT | flags: MISSING_T3N_DID, UNWHITELISTED_DESTINATION, DAILY_LIMIT_EXCEEDED
 
   ── screening summary ──
-  transfers screened: 2 | approved: 0 | frozen: 1 | flagged for review: 1
+  transfers screened: 4 | approved: 0 | frozen: 1 | flagged for review: 3
 
 [mainnet] done. Sentinel made zero network calls beyond the public RPC reads above.
 ```
-Live-path evidence (partial): direct `getSignaturesForAddress` / `getSlot` calls against `https://api.mainnet-beta.solana.com` from the same tree returned real mainnet data (slot 448,918,296; recent signatures e.g. `A8sux7ypMqMWQaXr…`). The end-to-end live screening run was not completable from the hardening sandbox because of the proxy flakiness described above — on a normal network the live path executes the same code path as the verified direct calls.
+The live path succeeded end-to-end on 2026-09-22 (public RPC `https://api.mainnet-beta.solana.com`, real on-chain data, exit 0). An earlier run from the same sandbox hit the egress-proxy flakiness and exercised the designed graceful-fallback path (a clear warning plus a labeled synthetic feed) — retry logic now handles that. Screening works against any address via `--address`.
 
 ### Polling Watch Mode
 `npm run watch -- --address <addr> --interval 30` establishes a baseline signature, then polls `getSignaturesForAddress` with `until` every N seconds, screens any new signatures' SOL transfers through the compliance engine, prints approve/flag/freeze alerts per transfer, and prints a summary on Ctrl+C. If the RPC is unreachable at startup it exits with a clear message rather than fabricating data (watch mode never falls back to simulated data — that would manufacture fake alerts).
