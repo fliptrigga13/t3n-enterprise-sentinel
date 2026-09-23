@@ -3,7 +3,7 @@
 **Project**: **T3N Enterprise Sentinel** — Autonomous Solana Treasury & Compliance Agent
 **Author**: fliptrigga13 — [github.com/fliptrigga13/t3n-enterprise-sentinel](https://github.com/fliptrigga13/t3n-enterprise-sentinel)
 **Submitter Wallet (Solana Mainnet)**: `CUbv4Hn4Y71ASzYn8j34YvFit55RbUPi6tLobVjmfc7i`
-**Contact**: Telegram (`@wardumb`)
+**Contact**: Telegram (`@Zippoflip`)
 
 **Provenance**: Originally built for the Terminal 3 Network (T3N) Trusted Agent Build Challenge (Superteam Earn bounty — sponsor: Terminal 3 Network, [@terminal3io](https://terminal3.io)). Extended during the Colosseum hackathon window (Sep 14 – Oct 12, 2026) with a **read-only Solana mainnet screening mode** and a **polling watch mode**. The T3N challenge history is honest provenance, not the headline — this document is the Colosseum entry.
 
@@ -173,4 +173,4 @@ This section replaces the earlier T3N ADK feedback report — the code never int
 - **Ease of maintenance**: minimal runtime dependencies (TypeScript + Node.js + `@solana/web3.js`); deterministic offline test suite; no secrets or env config required for any documented command.
 - **Repository**: [https://github.com/fliptrigga13/t3n-enterprise-sentinel](https://github.com/fliptrigga13/t3n-enterprise-sentinel)
 - **Docs**: `README.md` (this file's companion)
-- **Contact**: Telegram (`@wardumb`)
+- **Contact**: Telegram (`@Zippoflip`)
